@@ -1,3 +1,7 @@
+#------------------------------------------------#
+# THIS IS THE CODE FOR AMUNG US                  #
+#------------------------------------------------#
+
 piece = [' ','x',' ','x',' ',  ' ',' ',' ',' ',' ',  ' ',' ',' ',' ',' ',  'o',' ','o',' ','o',  'o','o','o','o','o'] #global because i suck at python
 ghosttask = 0
 imposter = 2
@@ -87,7 +91,7 @@ def crewturn():
             print("|\n|___|___|___|___|___|")
         print("Ghost Tasks: " + str(ghosttask))
         print("It's Crewmate's turn: ")
-        print(""" Move = 1\n Ghosttask = 2\n""")
+        print(""" Move = 1\n Skip to Ghost Task = 2\n""")
         answer = int(input("What would you like to do? "))
         if answer == 1:
             answer = int(input("Which row? "))
@@ -278,7 +282,7 @@ def start():
     global ghosttask
     global imposter
     space()
-    print("WELCOME TO AMONG CHECKSUS")
+    print("WELCOME TO AMONG CHESSUS")
     print("\n\n")
     print("""
   _______      _______   
