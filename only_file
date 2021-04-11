@@ -135,28 +135,28 @@ def crewturn():
                             row -= 1
                             if piece[column+(row)*5] == 'x':
                                 imposter -= 1
-                            piece[column+(row)*5] = 'o'
+                            piece[column+(row)*5] = 'Q'
                             piece[column+(row+1)*5] = ' '
                             checktask = 1
                         elif direction == 2 and checkvalid(column-1, row):
                             column -= 1
                             if piece[column+(row)*5] == 'x':
                                 imposter -= 1
-                            piece[column+((row)*5)] = 'o'
+                            piece[column+((row)*5)] = 'Q'
                             piece[column+1+((row)*5)] = ' '
                             checktask = 1
                         elif direction == 3 and checkvalid(column+1, row):
                             column += 1
                             if piece[column+((row)*5)] == 'x':
                                 imposter -= 1
-                            piece[column+(row)*5] = 'o'
+                            piece[column+(row)*5] = 'Q'
                             piece[column-1+((row)*5)] = ' '
                             checktask = 1
                         elif direction == 4 and checkvalid(column, row+1):
                             row += 1
                             if piece[column+(row)*5] == 'x':
                                 imposter -= 1
-                            piece[column+(row*5)] = 'o'
+                            piece[column+(row*5)] = 'Q'
                             piece[column+((row-1)*5)] = ' '
                             checktask = 1
                     #==================--------------==================#
