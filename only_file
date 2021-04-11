@@ -1,0 +1,311 @@
+piece = [' ','x',' ','x',' ',  ' ',' ',' ',' ',' ',  ' ',' ',' ',' ',' ',  'o',' ','o',' ','o',  'o','o','o','o','o'] #global because i suck at python
+ghosttask = 0
+imposter = 2
+#1 = crewmate win; 2 = imposter win
+winner = 0
+def checkvalid(column, row):
+    piecevalid = piece[column+(row)*5] == 'o' or piece[column+(row)*5] == 'x' or piece[column+(row)*5] == ' ' or piece[column+(row)*5] == 'Q'
+    piecerange = column >= 0 and column < 5 and row >= 0 and row < 5
+    return piecevalid and piecerange
+def checkpiece(role):
+    global winner
+    letter = ' '
+    letter2 = ' '
+    returnvar = 0
+    if role == 1:
+        for y in range(5):
+            for x in range(5):
+                if piece[x+(y*5)] == 'o' or piece[x+(y*5)] == 'Q':
+                    returnvar = 1
+        if returnvar == 0:
+            winner = 2
+    if role == 2:
+        if imposter == 0:
+            returnvar = 0
+            winner = 1
+        else:
+            returnvar = 1
+    if role == 3:
+        for y in range(5):
+            for x in range(5):
+                if piece[x+(y*5)] == 'o':
+                    returnvar = 1
+    return returnvar
+def space(): #spaces 50 lines
+    x = 0
+    while x < 50:
+        print(" ")
+        x = x + 1
+    x = 0
+def rules():
+    print("""
+Crewmates vs. Imposters
+
+Crewmate ("o") side has 8 pieces, while imposters have only two.
+Crewmates move by going up one space, and can report imposters by landing on
+their square diagonally, like a pawn in chess.
+If a crewmate somehow reports an imposter, the imposter is discarded from
+the board, never to be seen again.
+Crewmates finish a task by getting to the other side. After getting
+to the other side, they become a "Q" piece and are allowed to move in a
+non-diagonal direction of theboard to one space. They can still report bodies,
+only it has to be from a non-diagonal.
+Imposters can move both in any bordering square, and can kill any crewmate
+by landing on it.
+If an imposter dies, they can sabotage, meaning the imposter kills any crewmate
+that has finished their task/reached the other side.
+If a crewmate dies before getting to the other side, the player has to skip
+a turn to finish a task. If more crewmates die, the player must skip more turns
+to win the game. It is optional to do this every turn, but without tasks complete
+you cannot win the game.
+Crewmate player wins if you finish tasks or kill both imposters, and lose if all
+crewmates are dead.
+
+To move, type the row and column of the piece you are moving, and type the number
+for which direction you want to move.
+""")
+def crewturn():
+    global piece
+    global ghosttask
+    global imposter
+    global gameover
+    checktask = 0
+    x = 0
+    y = 0
+    row = 0
+    column = 0
+    error = 0
+    direction = 0
+    if checkpiece(3) == 0 and ghosttask == 0:
+        winner = 1
+    elif checkpiece(1):
+        print("""
+ ___________________""")
+        for y in range(5):
+            for x in range(5):
+                print("| %s " % (piece[x+(y*5)]), end='')
+            print("|\n|___|___|___|___|___|")
+        print("Ghost Tasks: " + str(ghosttask))
+        print("It's Crewmate's turn: ")
+        print(""" Move = 1\n Ghosttask = 2\n""")
+        answer = int(input("What would you like to do? "))
+        if answer == 1:
+            answer = int(input("Which row? "))
+            if answer < 1 or answer > 5:
+                error = 1
+            else:
+                row = answer - 1
+                answer = int(input("Which column? "))
+                column = answer - 1
+                if (answer < 1 or answer > 5) or (piece[column+(row*5)] != 'o' or piece[column+(row*5)] != 'Q') == 0:
+                    error = 1
+                else:
+                    #======================CREWMATE======================#
+                    if piece[column+(row)*5] == 'o':
+                        print(" Up = 1\n Sus Up Left = 2\n Sus Up Right = 3")
+                        direction = int(input("Which direction? "))
+                        if direction == 1 and checkvalid(column, row-1) and piece[column+(row-1)*5] == ' ':
+                            row -= 1
+                            piece[column+(row)*5] = 'o'
+                            piece[column+(row+1)*5] = ' '
+                            checktask = 1
+                        elif direction == 2 and checkvalid(column-1, row-1) and piece[column-1+(row-1)*5] == 'x':
+                            row -= 1
+                            column -= 1
+                            imposter -= 1
+                            piece[column+(row)*5] = 'o'
+                            piece[column+1+(row+1)*5] = ' '
+                            checktask = 1
+                        elif direction == 3 and checkvalid(column+1, row-1) and piece[column+1+(row-1)*5] == 'x':
+                            imposter -= 1
+                            piece[column+(row)*5] = 'o'
+                            piece[column-1+(row+1)*5] = ' '
+                            checktask = 1
+                        else:
+                            error = 1
+                    #==================SUPER CREWMATE==================#
+                    elif piece[column+(row)*5] == 'Q':
+                        print(" Up = 1\n Left = 2\n Right = 3\n Down = 4")
+                        direction = int(input("Which direction? "))
+                        if direction == 1 and checkvalid(column, row-1):
+                            row -= 1
+                            if piece[column+(row)*5] == 'x':
+                                imposter -= 1
+                            piece[column+(row)*5] = 'o'
+                            piece[column+(row+1)*5] = ' '
+                            checktask = 1
+                        elif direction == 2 and checkvalid(column-1, row):
+                            column -= 1
+                            if piece[column+(row)*5] == 'x':
+                                imposter -= 1
+                            piece[column+((row)*5)] = 'o'
+                            piece[column+1+((row)*5)] = ' '
+                            checktask = 1
+                        elif direction == 3 and checkvalid(column+1, row):
+                            column += 1
+                            if piece[column+((row)*5)] == 'x':
+                                imposter -= 1
+                            piece[column+(row)*5] = 'o'
+                            piece[column-1+((row)*5)] = ' '
+                            checktask = 1
+                        elif direction == 4 and checkvalid(column, row+1):
+                            row += 1
+                            if piece[column+(row)*5] == 'x':
+                                imposter -= 1
+                            piece[column+(row*5)] = 'o'
+                            piece[column+((row-1)*5)] = ' '
+                            checktask = 1
+                    #==================--------------==================#
+                    else:
+                        error = 1
+                if checktask == 1 and row == 0:
+                    piece[column+row*5] = 'Q'
+        elif answer == 2:
+            if ghosttask > 0:
+                ghosttask -= 1
+            else:
+                error = 1
+        else:
+            error = 1
+        if error == 1:
+            print("Not a valid move! Try again.")
+            crewturn()
+        else:
+            imposturn()
+    else: # just to make it clear that if checkpiece returns false, then no command is played and start loops again
+        pass
+def imposturn():
+    global piece
+    global ghosttask
+    global imposter
+    global gameover
+    x = 0
+    y = 0
+    row = 0
+    column = 0
+    error = 0
+    if checkpiece(2):
+        print("""
+ ___________________""")
+        for y in range(5):
+            for x in range(5):
+                print("| %s " % (piece[x+(y*5)]), end='')
+            print("|\n|___|___|___|___|___|")
+        print("It's Imposter's turn: ")
+        answer = int(input("Which row? "))
+        if answer < 1 or answer > 5:
+            error = 1
+        else:
+            row = answer - 1
+            answer = int(input("Which column? "))
+            column = answer - 1
+            if (answer < 1 or answer > 5) or piece[column+(row*5)] != 'x':
+                error = 1
+            else:
+                print(" Up = 1\n Left = 2\n Right = 3\n Down = 4\n Up-Left = 5\n Left-Down = 6\n Up-Right = 7\n Right-Down = 8\n")
+                direction = int(input("Which direction? "))
+                if direction == 1 and checkvalid(column, row-1):
+                    row -= 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column+(row+1)*5] = ' '
+                elif direction == 2 and checkvalid(column-1, row):
+                    column -= 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column+1+(row)*5] = ' '
+                elif direction == 3 and checkvalid(column+1, row):
+                    column += 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column-1+(row)*5] = ' '
+                elif direction == 4 and checkvalid(column, row+1):
+                    row += 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column+(row-1)*5] = ' '
+                elif direction == 5 and checkvalid(column-1, row-1):
+                    row -= 1
+                    column -= 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column+1+((row+1)*5)] = ' '
+                elif direction == 6 and checkvalid(column-1, row+1):
+                    row += 1
+                    column -= 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column+1+((row-1)*5)] = ' '
+                elif direction == 7 and checkvalid(column+1, row-1):
+                    row -= 1
+                    column += 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column-1+((row+1)*5)] = ' '
+                elif direction == 8 and checkvalid(column+1, row+1):
+                    row += 1
+                    column += 1
+                    if piece[column+(row)*5] == 'o':
+                        ghosttask += 1
+                    piece[column+(row)*5] = 'x'
+                    piece[column-1+((row-1)*5)] = ' '
+                else:
+                    error = 1
+        if error == 1:
+            print("Not a valid move! Try again.")
+            imposturn()
+        else:
+            crewturn()
+    else: # just to make it clear that if checkpiece returns false, then no command is played and start loops again
+        pass
+def gameover():
+    space()
+    print("GAME OVER!")
+    if winner == 1:
+        print("WINNER: THE CREWMATES")
+    elif winner == 2:
+        print("WINNERL THE IMPOSTERS")
+    
+def start():
+    global piece
+    global ghosttask
+    global imposter
+    space()
+    print("WELCOME TO AMONG CHECKSUS")
+    print("\n\n")
+    print("""
+  _______      _______   
+ /_____  \\    /_____  \\  
+ |     | |_   |     | |_  
+ |_____| | ||\\|_____| | | 
+ |       | ||_|       | | 
+ |       |_|  |       |_| 
+ |   |   |    |   |   |   
+ |___|___|    |___|___|   
+    """)
+    while 1:
+        answer = input("""START: "start"\nRULES: "rules" """)
+        piece = [' ','x',' ','x',' ',  ' ',' ',' ',' ',' ',  ' ',' ',' ',' ',' ',  'o',' ','o',' ','o',  'o','o','o','o','o'] #global because i suck at python
+        ghosttask = 0
+        imposter = 2
+        space()
+        if answer == "start":
+            try:
+                crewturn()
+            except:
+                print("INVALID ANSWER\nCOMPILER CANNOT HANDLE")
+            gameover()
+        elif answer == "rules":
+            rules()
+        else:
+            print("Invalid answer")
+            start()
+#---------------------------------------------------------#
+start()
